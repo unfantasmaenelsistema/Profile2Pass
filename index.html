@@ -1,143 +1,98 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile2Pass - Generador de Diccionarios OSINT</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile2Pass · Un Fantasma en el Sistema</title>
+<meta name="description" content="Generador de diccionarios de contraseñas a partir de un perfil (OSINT), para auditorías autorizadas, CTF y formación. Tildes, fechas, leet, símbolos y combinaciones. 100% en el navegador.">
+<link rel="icon" href="icono.png">
+<script>
+  // Tema antes de pintar, para que no parpadee
+  (function(){var t=null;try{t=localStorage.getItem('p2p-theme');}catch(e){}
+  if(!t)t=(window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';
+  document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="logo-container">
-        <img src="logo.png" alt="Profile2Pass Logo">
-    </div>
+<header>
+  <a href="https://www.unfantasmaenelsistema.com" target="_blank" rel="noopener" class="logo">
+    <img src="icono.png" alt="Un Fantasma en el Sistema">
+    <span>Profile<b>2</b>Pass</span>
+  </a>
+  <div class="hdr-right">
+    <a href="https://www.unfantasmaenelsistema.com" target="_blank" rel="noopener" class="site-link">unfantasmaenelsistema.com</a>
+    <button id="langToggle" class="hdr-btn" type="button">EN</button>
+    <button id="themeToggle" class="hdr-btn" type="button">☀</button>
+  </div>
+</header>
 
-    <div class="container">
-        <div class="header">
-            <h1>Profile2Pass</h1>
-            <p>Genera diccionarios de fuerza bruta basados en información de perfil (OSINT).</p>
+<main>
+  <section class="intro">
+    <h1 data-i18n="title">Generador de diccionarios a partir de un perfil</h1>
+    <p class="lead" data-i18n-html="lead"></p>
+    <div class="ethics" data-i18n-html="ethics"></div>
+  </section>
+
+  <div class="layout">
+    <section class="card" id="formCard">
+      <div class="card-head">
+        <h2 data-i18n="profile">Perfil</h2>
+        <div class="tools">
+          <button type="button" class="btn ghost sm" id="exampleBtn" data-i18n="example"></button>
+          <label class="btn ghost sm" for="fileInput" data-i18n="import"></label>
+          <input type="file" id="fileInput" accept=".json,.csv,application/json,text/csv" hidden>
+          <button type="button" class="btn ghost sm" id="templateBtn" data-i18n="template"></button>
+          <button type="button" class="btn ghost sm" id="clearBtn" data-i18n="clear"></button>
         </div>
+      </div>
+      <p class="note" id="importNote" hidden></p>
+      <form id="profileForm" autocomplete="off" onsubmit="return false"></form>
+    </section>
 
-        <div class="main-section">
-            <div class="input-form">
-                <h2>Introducir datos de perfil</h2>
-                <div class="form-section">
-                    <h3>Información Personal</h3>
-                    <div class="input-group">
-                        <label for="name">Nombre:</label>
-                        <input type="text" id="name" placeholder="Ej: Juan">
-                    </div>
-                    <div class="input-group">
-                        <label for="surname1">Primer Apellido:</label>
-                        <input type="text" id="surname1" placeholder="Ej: García">
-                    </div>
-                    <div class="input-group">
-                        <label for="surname2">Segundo Apellido:</label>
-                        <input type="text" id="surname2" placeholder="Ej: Pérez">
-                    </div>
-                    <div class="input-group">
-                        <label for="nickname">Alias / Apodo:</label>
-                        <input type="text" id="nickname" placeholder="Ej: El Pibe">
-                    </div>
-                    <div class="input-group">
-                        <label for="birthdate">Fecha de Nacimiento:</label>
-                        <input type="text" id="birthdate" placeholder="DD-MM-AAAA">
-                    </div>
-                    <div class="input-group">
-                        <label for="birthyear">Año de Nacimiento:</label>
-                        <input type="text" id="birthyear" placeholder="Ej: 1985">
-                    </div>
-                    <div class="input-group">
-                        <label for="partnerName">Nombre de Pareja:</label>
-                        <input type="text" id="partnerName" placeholder="Ej: Ana">
-                    </div>
-                </div>
+    <section class="card side">
+      <h2 data-i18n="options">Opciones</h2>
+      <div class="opts" id="opts"></div>
+      <div class="lens">
+        <label><span data-i18n="minLen"></span><input type="number" id="minLen" min="1" max="64" value="6"></label>
+        <label><span data-i18n="maxLen"></span><input type="number" id="maxLen" min="1" max="64" value="20"></label>
+      </div>
 
-                <div class="form-section">
-                    <h3>Familia</h3>
-                    <div class="input-group">
-                        <label for="fatherName">Nombre del Padre:</label>
-                        <input type="text" id="fatherName" placeholder="Ej: Antonio">
-                    </div>
-                    <div class="input-group">
-                        <label for="motherName">Nombre de la Madre:</label>
-                        <input type="text" id="motherName" placeholder="Ej: María">
-                    </div>
-                    <div class="input-group">
-                        <label for="siblings">Nombres de Hermanos (separados por coma):</label>
-                        <input type="text" id="siblings" placeholder="Ej: Jose, Laura">
-                    </div>
-                    <div class="input-group">
-                        <label for="children">Nombres de Hijos (separados por coma):</label>
-                        <input type="text" id="children" placeholder="Ej: Daniel, Sofía">
-                    </div>
-                </div>
+      <h2 style="margin-top:22px" data-i18n="result">Diccionario</h2>
+      <div class="count"><b id="count">0</b> <span data-i18n="words"></span></div>
+      <p class="note" id="truncNote" hidden></p>
+      <textarea id="output" readonly spellcheck="false"></textarea>
+      <p class="note" id="previewNote" hidden></p>
+      <div class="actions">
+        <button type="button" class="btn" id="downloadBtn" data-i18n="download"></button>
+        <button type="button" class="btn ghost" id="copyBtn" data-i18n="copy"></button>
+      </div>
+      <p class="privacy" data-i18n="privacy"></p>
+    </section>
+  </div>
 
-                <div class="form-section">
-                    <h3>Detalles Adicionales</h3>
-                    <div class="input-group">
-                        <label for="pet">Mascota:</label>
-                        <input type="text" id="pet" placeholder="Ej: Rex">
-                    </div>
-                    <div class="input-group">
-                        <label for="city">Ciudad:</label>
-                        <input type="text" id="city" placeholder="Ej: Madrid">
-                    </div>
-                    <div class="input-group">
-                        <label for="company">Empresa:</label>
-                        <input type="text" id="company" placeholder="Ej: Google">
-                    </div>
-                    <div class="input-group">
-                        <label for="school">Colegio/Universidad:</label>
-                        <input type="text" id="school" placeholder="Ej: Oxford">
-                    </div>
-                    <div class="input-group">
-                        <label for="team">Equipo Deportivo:</label>
-                        <input type="text" id="team" placeholder="Ej: Real Madrid">
-                    </div>
-                    <div class="input-group">
-                        <label for="hobby">Hobby/Interés:</label>
-                        <input type="text" id="hobby" placeholder="Ej: futbol">
-                    </div>
-                    <div class="input-group">
-                        <label for="dni">Número de Identificación (DNI/NIF):</label>
-                        <input type="text" id="dni" placeholder="Ej: 12345678A">
-                    </div>
-                    <div class="input-group">
-                        <label for="ssn">Número de Seguridad Social:</label>
-                        <input type="text" id="ssn" placeholder="Ej: 1234567890">
-                    </div>
-                    <div class="input-group">
-                        <label for="phone">Teléfono:</label>
-                        <input type="text" id="phone" placeholder="Ej: 600112233">
-                    </div>
-                </div>
-                
-                <button id="generateBtn">Generar Diccionario</button>
-            </div>
-            
-            <div class="json-upload">
-                <h2>O subir desde JSON</h2>
-                <p>O sube un archivo JSON con los datos del perfil.</p>
-                <div class="file-select-group">
-                    <label for="jsonInput" class="custom-file-upload">
-                        Elegir archivo
-                    </label>
-                    <input type="file" id="jsonInput" accept=".json">
-                    <span id="fileName">Ningún archivo seleccionado</span>
-                </div>
-                <button id="uploadBtn">Generar desde JSON</button>
-            </div>
-        </div>
+  <section class="card howto">
+    <h2 data-i18n="howTitle">Cómo se usa el diccionario</h2>
+    <div data-i18n-html="howBody"></div>
+    <h2 data-i18n="defTitle">Cómo protegerte</h2>
+    <div data-i18n-html="defBody"></div>
+  </section>
+</main>
 
-        <div class="output-section">
-            <h2>Diccionario Generado</h2>
-            <p id="wordCount">Total de palabras: 0</p>
-            <textarea id="outputDictionary" readonly></textarea>
-            <button id="downloadBtn">Descargar como .txt</button>
-        </div>
-    </div>
-    
-    <script src="script.js"></script>
+<footer class="site-footer">
+  <a href="https://www.unfantasmaenelsistema.com" target="_blank" rel="noopener" class="footer-brand">
+    <img src="icono.png" alt="Un Fantasma en el Sistema" width="28" height="28">
+    <span><b>Un Fantasma en el Sistema</b><small>unfantasmaenelsistema.com</small></span>
+  </a>
+  <div class="footer-links">
+    <span data-i18n="fLocal"></span><span>·</span>
+    <a href="https://github.com/unfantasmaenelsistema/Profile2Pass" target="_blank" rel="noopener">GitHub</a><span>·</span><span>MIT</span>
+  </div>
+</footer>
+
+<script src="engine.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
